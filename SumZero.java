@@ -30,6 +30,7 @@ class SumZero{
 				j=i+1;
 			}
 		}
-		System.out.print(s1+" "+s2);
+		System.out.print(s1+" "+s2+"\n");
+		System.out.println(s1+s2);
 	}
 }
