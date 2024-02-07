@@ -1,16 +1,51 @@
-class Account{
-	int bal;
-	public Account(int amt){
-		bal=amt;
+abstract class Account{
+	String name;
+	int ano;
+	double balance;
+	
+	public Account(String n, int a, double b){
+		name = n;
+		ano = a;
+		balance = b;
 	}
-	public void deposit(Account this,int num){
-		bal+=num;
-		System.out.println(this.getClass().getName());
-	}
-	public static void main(String[] args){
-		Account n=new Account(100);
-		Account n1=n;
-		n.deposit(100);
-		System.out.println(n1.bal);
-	}
+
+	 public abstract void withdraw(int amnt);	
+	
 }
+
+class SavingsAccnt extends Account{
+	boolean chq;
+	double bal;
+
+	public SavingsAccnt(String n, int a, double b, boolean cq){
+		super(n, a, b);
+		chq = cq;
+		bal = b;
+	}
+
+	
+	public void deposit(int amnt){
+		bal += amnt;
+		System.out.println("Balance after deposit: "+bal);
+	}
+
+	public void withdraw(int amnt){
+		if(bal > 0) System.out.println("Bal after withdraw: "+(bal-amnt));
+		bal -= amnt;
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
