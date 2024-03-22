@@ -1,24 +1,43 @@
-select ashish_get_past_balance(1001, '2023-02-19');
-
 CREATE OR REPLACE FUNCTION getMinBal (accno int, year1 int, month1 int) 
 RETURNS NUMERIC
 LANGUAGE  PLPGSQL
 AS $$
 DECLARE 
 	minBal NUMERIC;
+ 	tbal numeric;
 	currentBal NUMERIC;
+	tranxtype text;
+	minBal1 NUmeric;
 	getBalCursor CURSOR (ano int, yr int, mn int) FOR
-	SELECT * FROM ashish_transactions WHERE (account_no = ano AND 
-	(SELECT EXTRACT(Year FROM transaction_date) FROM ashish_transactions)
-	AND (SELECT EXTRACT(Month FROM transaction_date)));
-	
+    SELECT t.amount, a.account_balance,t.transaction_type
+    FROM ashish_transactions AS t
+    JOIN ashish_accounts AS a ON t.account_no = a.account_no
+    WHERE (t.account_no = ano
+        AND EXTRACT(Year FROM t.transaction_date) = yr
+        AND EXTRACT(Month FROM t.transaction_date) = mn);
+
 BEGIN
 	OPEN getBalCursor (accno,year1,month1);
 	loop
-	fetch amount from getBalCursor into currentBal;
+	fetch getBalCursor into tbal,currentBal,tranxtype;
 	exit when not found;
-	if(currentBal < minBal) 
-	minBal = currentBal;
-	end if;
-	end loop;
+	minBal:=currentBal;
+	case
+	when tranxtype='deposit' then
+		currentBal:=currentBal-tbal;
+		raise notice ' % currentBal',currentBal;
+	when tranxtype='withdrawal' then
+		currentBal:=currentBal+tbal;
+		raise notice ' % currentBal',currentBal;	
+	end case;
+		if(currentBal < minBal) then
+		raise notice 'runnig if ';
+			minBal1:= currentBal;
+			raise notice '% minbal', minBal1;
+		end if;
 	
+	end loop;
+	close getBalCursor;
+	return minBal1;
+	end;
+	$$;
